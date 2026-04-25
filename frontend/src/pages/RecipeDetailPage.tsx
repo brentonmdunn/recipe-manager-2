@@ -244,16 +244,14 @@ export default function RecipeDetailPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Ingredients</h2>
               </div>
-              {recipe.servings && (
-                <div className="mb-4">
-                  <RecipeScaler
-                    originalServings={servings}
-                    currentServings={activeServings}
-                    onChange={setCurrentServings}
-                    unit={recipe.servings_unit ?? undefined}
-                  />
-                </div>
-              )}
+              <div className="mb-4">
+                <RecipeScaler
+                  originalServings={servings}
+                  currentServings={activeServings}
+                  onChange={setCurrentServings}
+                  unit={recipe.servings_unit ?? (recipe.servings ? "servings" : "×")}
+                />
+              </div>
               <IngredientList
                 ingredients={recipe.ingredients}
                 scaleFactor={scaleFactor}
