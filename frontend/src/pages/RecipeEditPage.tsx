@@ -26,8 +26,8 @@ interface StepForm {
 }
 
 export default function RecipeEditPage() {
-  const { id } = useParams<{ id: string }>();
-  const isEditing = !!id;
+  const { slug } = useParams<{ slug: string }>();
+  const isEditing = !!slug;
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -50,8 +50,8 @@ export default function RecipeEditPage() {
   const [error, setError] = useState("");
 
   const { data: existingRecipe } = useQuery({
-    queryKey: ["recipe-edit", id],
-    queryFn: () => getRecipe(id!),
+    queryKey: ["recipe-edit", slug],
+    queryFn: () => getRecipe(slug!),
     enabled: isEditing,
   });
 
@@ -100,7 +100,7 @@ export default function RecipeEditPage() {
     mutationFn: async (data: RecipeCreateData) => {
       let recipe;
       if (isEditing) {
-        recipe = await updateRecipe(id!, data);
+        recipe = await updateRecipe(existingRecipe!.id, data);
       } else {
         recipe = await createRecipe(data);
       }

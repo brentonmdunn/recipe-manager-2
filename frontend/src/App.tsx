@@ -28,7 +28,7 @@ export default function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/recipes/new" element={<RecipeEditPage />} />
               <Route path="/recipes/:slug" element={<RecipeDetailPage />} />
-              <Route path="/recipes/:id/edit" element={<RecipeEditPage />} />
+              <Route path="/recipes/:slug/edit" element={<RecipeEditPage />} />
               <Route path="/import" element={<ImportRecipePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="*" element={<NotFoundPage />} />

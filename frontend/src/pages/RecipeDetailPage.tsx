@@ -138,7 +138,7 @@ export default function RecipeDetailPage() {
                   />
                 </button>
                 <Link
-                  to={`/recipes/${recipe.id}/edit`}
+                  to={`/recipes/${recipe.slug}/edit`}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   title="Edit recipe"
                 >
