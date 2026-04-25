@@ -16,6 +16,9 @@ class AuthService:
     def __init__(self, user_repo: UserRepository) -> None:
         self._user_repo = user_repo
 
+    async def needs_setup(self) -> bool:
+        return await self._user_repo.count() == 0
+
     async def register(self, data: RegisterRequest) -> User:
         user_count = await self._user_repo.count()
         if user_count > 0:

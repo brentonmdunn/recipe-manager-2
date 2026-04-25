@@ -12,6 +12,12 @@ from app.schemas.user import UserResponse
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+@router.get("/setup-status")
+async def setup_status(auth_service: AuthServiceDep) -> dict:
+    needs_setup = await auth_service.needs_setup()
+    return {"needs_setup": needs_setup}
+
+
 @router.post("/register", response_model=UserResponse, status_code=201)
 async def register(
     data: RegisterRequest,

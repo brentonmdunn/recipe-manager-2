@@ -24,3 +24,7 @@ export async function refreshToken(
 ): Promise<TokenResponse> {
   return api.post("auth/refresh", { json: { refresh_token } }).json();
 }
+
+export async function getSetupStatus(): Promise<{ needs_setup: boolean }> {
+  return api.get("auth/setup-status").json();
+}
