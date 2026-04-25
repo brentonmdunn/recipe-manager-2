@@ -1,17 +1,23 @@
-import { useQuery } from "@tanstack/react-query";
-import { Filter, X } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Filter, Pencil, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { listRecipes, listTags } from "../api/recipes";
+import { createTag, deleteTag, listRecipes, listTags } from "../api/recipes";
 import RecipeCard from "../components/recipe/RecipeCard";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function HomePage() {
   const [searchParams] = useSearchParams();
   const search = searchParams.get("search") ?? undefined;
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.is_admin ?? false;
   const [page, setPage] = useState(1);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [editTags, setEditTags] = useState(false);
+  const [newTagName, setNewTagName] = useState("");
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState("desc");
 
@@ -52,6 +58,24 @@ export default function HomePage() {
     setSelectedTags([]);
     setShowFavorites(false);
     setPage(1);
+  };
+
+  const handleCreateTag = async () => {
+    const name = newTagName.trim();
+    if (!name) return;
+    await createTag(name);
+    setNewTagName("");
+    queryClient.invalidateQueries({ queryKey: ["tags"] });
+  };
+
+  const handleDeleteTag = async (tagId: string, tagName: string) => {
+    if (!window.confirm(`Delete tag "${tagName}"? This will remove it from all recipes.`)) {
+      return;
+    }
+    await deleteTag(tagId);
+    setSelectedTags((prev) => prev.filter((t) => t !== tagId));
+    queryClient.invalidateQueries({ queryKey: ["tags"] });
+    queryClient.invalidateQueries({ queryKey: ["recipes"] });
   };
 
   const hasFilters = selectedTags.length > 0 || showFavorites;
@@ -106,26 +130,86 @@ export default function HomePage() {
 
       {showFilters && (
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 space-y-4">
-          {tags && tags.length > 0 && (
+          {((tags && tags.length > 0) || isAdmin) && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tags
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Tags
+                </label>
+                {isAdmin && (
                   <button
-                    key={tag.id}
-                    onClick={() => toggleTag(tag.id)}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      selectedTags.includes(tag.id)
+                    type="button"
+                    onClick={() => setEditTags((prev) => !prev)}
+                    className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${
+                      editTags
                         ? "bg-[var(--color-primary)] text-white"
-                        : "bg-orange-50 text-[var(--color-primary)] hover:bg-orange-100"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
-                    {tag.name}
+                    <Pencil className="w-3 h-3" />
+                    {editTags ? "Done" : "Edit tags"}
                   </button>
-                ))}
+                )}
               </div>
+              <div className="flex flex-wrap gap-2">
+                {tags?.map((tag) =>
+                  editTags && isAdmin ? (
+                    <div
+                      key={tag.id}
+                      className="inline-flex items-center gap-1 bg-gray-100 rounded-full"
+                    >
+                      <span className="pl-3 pr-1 py-1 text-sm text-gray-700">
+                        {tag.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTag(tag.id, tag.name)}
+                        className="pr-2 pl-1 py-1 text-gray-400 hover:text-red-600"
+                        title={`Delete "${tag.name}" tag`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      key={tag.id}
+                      onClick={() => toggleTag(tag.id)}
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        selectedTags.includes(tag.id)
+                          ? "bg-[var(--color-primary)] text-white"
+                          : "bg-orange-50 text-[var(--color-primary)] hover:bg-orange-100"
+                      }`}
+                    >
+                      {tag.name}
+                    </button>
+                  )
+                )}
+              </div>
+              {editTags && isAdmin && (
+                <div className="flex gap-2 mt-3">
+                  <input
+                    type="text"
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCreateTag();
+                      }
+                    }}
+                    placeholder="New tag name..."
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateTag}
+                    disabled={!newTagName.trim()}
+                    className="inline-flex items-center gap-1 px-3 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="w-4 h-4" /> Add
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
