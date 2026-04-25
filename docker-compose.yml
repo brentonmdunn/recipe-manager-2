@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/recipes.db
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - UPLOAD_DIR=/data/uploads
+    volumes:
+      - recipe-data:/data
+    networks:
+      - default
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    networks:
+      - default
+      - lab-internal
+    restart: unless-stopped
+
+volumes:
+  recipe-data:
+
+networks:
+  lab-internal:
+    external: true
+    name: stack_lab-internal
