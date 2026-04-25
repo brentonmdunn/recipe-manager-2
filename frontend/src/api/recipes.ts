@@ -3,6 +3,7 @@ import type {
   PaginatedResponse,
   Recipe,
   RecipeCreateData,
+  ShareLink,
   Tag,
 } from "./types";
 
@@ -97,4 +98,20 @@ export async function uploadImage(
     body: formData,
     searchParams: { is_primary: String(isPrimary) },
   });
+}
+
+export async function createShareLink(recipeId: string): Promise<ShareLink> {
+  return api.post("share", { json: { recipe_id: recipeId } }).json();
+}
+
+export async function listShareLinks(recipeId: string): Promise<ShareLink[]> {
+  return api.get(`share/${recipeId}`).json();
+}
+
+export async function deleteShareLink(shareLinkId: string): Promise<void> {
+  await api.delete(`share/${shareLinkId}`);
+}
+
+export async function getSharedRecipe(token: string): Promise<Recipe> {
+  return api.get(`share/token/${token}`).json();
 }

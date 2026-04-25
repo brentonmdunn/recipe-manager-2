@@ -90,6 +90,13 @@ export interface PaginatedResponse {
   pages: number;
 }
 
+export interface ShareLink {
+  id: string;
+  token: string;
+  recipe_id: string;
+  created_at: string;
+}
+
 export interface RecipeCreateData {
   title: string;
   description?: string;

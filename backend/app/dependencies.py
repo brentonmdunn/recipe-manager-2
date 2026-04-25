@@ -6,12 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.models.user import User
 from app.repositories.recipe_repository import SqlAlchemyRecipeRepository
+from app.repositories.share_link_repository import ShareLinkRepository
 from app.repositories.tag_repository import SqlAlchemyTagRepository
 from app.repositories.user_repository import SqlAlchemyUserRepository
 from app.services.auth_service import AuthService
 from app.services.image_service import ImageService
 from app.services.recipe_service import RecipeService
 from app.services.scraper_service import ScraperService
+from app.services.share_link_service import ShareLinkService
 
 
 async def get_user_repo(
@@ -57,6 +59,19 @@ async def get_image_service(
     return ImageService(recipe_repo)
 
 
+async def get_share_link_repo(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ShareLinkRepository:
+    return ShareLinkRepository(session)
+
+
+async def get_share_link_service(
+    share_link_repo: Annotated[ShareLinkRepository, Depends(get_share_link_repo)],
+    recipe_repo: Annotated[SqlAlchemyRecipeRepository, Depends(get_recipe_repo)],
+) -> ShareLinkService:
+    return ShareLinkService(share_link_repo, recipe_repo)
+
+
 async def get_current_user(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     authorization: str = Header(None),
@@ -91,4 +106,5 @@ AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 RecipeServiceDep = Annotated[RecipeService, Depends(get_recipe_service)]
 ScraperServiceDep = Annotated[ScraperService, Depends(get_scraper_service)]
 ImageServiceDep = Annotated[ImageService, Depends(get_image_service)]
+ShareLinkServiceDep = Annotated[ShareLinkService, Depends(get_share_link_service)]
 TagRepoDep = Annotated[SqlAlchemyTagRepository, Depends(get_tag_repo)]
