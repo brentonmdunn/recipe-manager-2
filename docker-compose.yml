@@ -7,15 +7,23 @@ services:
       - UPLOAD_DIR=/data/uploads
     volumes:
       - recipe-data:/data
+    networks:
+      - default
     restart: unless-stopped
 
   frontend:
     build: ./frontend
-    ports:
-      - "${PORT:-3000}:80"
     depends_on:
       - backend
+    networks:
+      - default
+      - lab-internal
     restart: unless-stopped
 
 volumes:
   recipe-data:
+
+networks:
+  lab-internal:
+    external: true
+    name: stack_lab-internal
