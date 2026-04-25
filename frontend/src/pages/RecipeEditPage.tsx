@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   createRecipe,
+  createTag,
+  deleteTag,
   getRecipe,
-  listCategories,
   listTags,
   updateRecipe,
   uploadImage,
@@ -40,7 +41,7 @@ export default function RecipeEditPage() {
   const [servingsUnit, setServingsUnit] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [isPublic, setIsPublic] = useState(true);
-  const [categoryId, setCategoryId] = useState("");
+  const [newTagName, setNewTagName] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState<IngredientForm[]>([
     { name: "", quantity: "", unit: "", notes: "", group_name: "" },
@@ -53,11 +54,6 @@ export default function RecipeEditPage() {
     queryKey: ["recipe-edit", slug],
     queryFn: () => getRecipe(slug!),
     enabled: isEditing,
-  });
-
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: listCategories,
   });
 
   const { data: tags } = useQuery({
@@ -75,7 +71,7 @@ export default function RecipeEditPage() {
       setServingsUnit(existingRecipe.servings_unit ?? "");
       setSourceUrl(existingRecipe.source_url ?? "");
       setIsPublic(existingRecipe.is_public);
-      setCategoryId(existingRecipe.category?.id ?? "");
+
       setSelectedTagIds(existingRecipe.tags.map((t) => t.id));
       setIngredients(
         existingRecipe.ingredients.length > 0
@@ -155,7 +151,6 @@ export default function RecipeEditPage() {
       servings_unit: servingsUnit || undefined,
       source_url: sourceUrl || undefined,
       is_public: isPublic,
-      category_id: categoryId || undefined,
       tag_ids: selectedTagIds,
       ingredients: filteredIngredients,
       steps: filteredSteps,
@@ -327,49 +322,76 @@ export default function RecipeEditPage() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="font-semibold text-gray-900">Category & Tags</h2>
+          <h2 className="font-semibold text-gray-900">Tags</h2>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            >
-              <option value="">None</option>
-              {categories?.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-wrap gap-2">
+            {tags?.map((tag) => (
+              <div key={tag.id} className="inline-flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => toggleTag(tag.id)}
+                  className={`px-3 py-1 rounded-l-full text-sm ${
+                    selectedTagIds.includes(tag.id)
+                      ? "bg-[var(--color-primary)] text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {tag.name}
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await deleteTag(tag.id);
+                    setSelectedTagIds((prev) =>
+                      prev.filter((t) => t !== tag.id)
+                    );
+                    queryClient.invalidateQueries({ queryKey: ["tags"] });
+                  }}
+                  className={`px-1.5 py-1 rounded-r-full text-sm ${
+                    selectedTagIds.includes(tag.id)
+                      ? "bg-[var(--color-primary)] text-white/70 hover:text-white"
+                      : "bg-gray-100 text-gray-400 hover:text-gray-600"
+                  }`}
+                  title={`Delete "${tag.name}" tag`}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
           </div>
 
-          {tags && tags.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tags
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={() => toggleTag(tag.id)}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      selectedTagIds.includes(tag.id)
-                        ? "bg-[var(--color-primary)] text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {tag.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTagName}
+              onChange={(e) => setNewTagName(e.target.value)}
+              onKeyDown={async (e) => {
+                if (e.key === "Enter" && newTagName.trim()) {
+                  e.preventDefault();
+                  const tag = await createTag(newTagName.trim());
+                  setSelectedTagIds((prev) => [...prev, tag.id]);
+                  setNewTagName("");
+                  queryClient.invalidateQueries({ queryKey: ["tags"] });
+                }
+              }}
+              placeholder="New tag name..."
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                if (newTagName.trim()) {
+                  const tag = await createTag(newTagName.trim());
+                  setSelectedTagIds((prev) => [...prev, tag.id]);
+                  setNewTagName("");
+                  queryClient.invalidateQueries({ queryKey: ["tags"] });
+                }
+              }}
+              className="inline-flex items-center gap-1 px-3 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary-hover)]"
+            >
+              <Plus className="w-4 h-4" /> Add Tag
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">

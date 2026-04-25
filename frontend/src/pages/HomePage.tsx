@@ -2,14 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Filter, X } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { listCategories, listRecipes, listTags } from "../api/recipes";
+import { listRecipes, listTags } from "../api/recipes";
 import RecipeCard from "../components/recipe/RecipeCard";
 
 export default function HomePage() {
   const [searchParams] = useSearchParams();
   const search = searchParams.get("search") ?? undefined;
   const [page, setPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<string>();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -21,7 +20,6 @@ export default function HomePage() {
       "recipes",
       page,
       search,
-      selectedCategory,
       selectedTags,
       showFavorites,
       sortBy,
@@ -31,17 +29,11 @@ export default function HomePage() {
       listRecipes({
         page,
         search,
-        category_id: selectedCategory,
         tag_ids: selectedTags.length > 0 ? selectedTags : undefined,
         is_favorite: showFavorites ? true : undefined,
         sort_by: sortBy,
         sort_order: sortOrder,
       }),
-  });
-
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: listCategories,
   });
 
   const { data: tags } = useQuery({
@@ -57,14 +49,12 @@ export default function HomePage() {
   };
 
   const clearFilters = () => {
-    setSelectedCategory(undefined);
     setSelectedTags([]);
     setShowFavorites(false);
     setPage(1);
   };
 
-  const hasFilters =
-    selectedCategory || selectedTags.length > 0 || showFavorites;
+  const hasFilters = selectedTags.length > 0 || showFavorites;
 
   return (
     <div>
@@ -116,43 +106,6 @@ export default function HomePage() {
 
       {showFilters && (
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => {
-                  setSelectedCategory(undefined);
-                  setPage(1);
-                }}
-                className={`px-3 py-1 rounded-full text-sm ${
-                  !selectedCategory
-                    ? "bg-[var(--color-primary)] text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                All
-              </button>
-              {categories?.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setSelectedCategory(cat.id);
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    selectedCategory === cat.id
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {tags && tags.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

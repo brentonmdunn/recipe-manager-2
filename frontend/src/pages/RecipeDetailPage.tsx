@@ -223,11 +223,6 @@ export default function RecipeDetailPage() {
 
           {recipe.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
-              {recipe.category && (
-                <span className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600">
-                  {recipe.category.name}
-                </span>
-              )}
               {recipe.tags.map((tag) => (
                 <span
                   key={tag.id}

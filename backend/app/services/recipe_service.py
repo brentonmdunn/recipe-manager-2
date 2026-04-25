@@ -47,7 +47,6 @@ class RecipeService:
                     c.key: getattr(recipe, c.key)
                     for c in recipe.__table__.columns
                 },
-                "category": recipe.category,
                 "tags": recipe.tags,
                 "primary_image": primary_image,
             }
@@ -70,7 +69,6 @@ class RecipeService:
             source_url=data.source_url,
             nutrition_info=data.nutrition_info,
             is_public=data.is_public,
-            category_id=data.category_id,
             user_id=user_id,
         )
 
@@ -113,7 +111,6 @@ class RecipeService:
         per_page: int = 20,
         search: str | None = None,
         tag_ids: list[str] | None = None,
-        category_id: str | None = None,
         is_favorite: bool | None = None,
         min_rating: int | None = None,
         max_cook_time: int | None = None,
@@ -126,7 +123,6 @@ class RecipeService:
             per_page=per_page,
             search=search,
             tag_ids=tag_ids,
-            category_id=category_id,
             is_favorite=is_favorite,
             min_rating=min_rating,
             max_cook_time=max_cook_time,

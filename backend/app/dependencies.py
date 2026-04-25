@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models.user import User
-from app.repositories.category_repository import SqlAlchemyCategoryRepository
 from app.repositories.recipe_repository import SqlAlchemyRecipeRepository
 from app.repositories.tag_repository import SqlAlchemyTagRepository
 from app.repositories.user_repository import SqlAlchemyUserRepository
@@ -31,12 +30,6 @@ async def get_tag_repo(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> SqlAlchemyTagRepository:
     return SqlAlchemyTagRepository(session)
-
-
-async def get_category_repo(
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> SqlAlchemyCategoryRepository:
-    return SqlAlchemyCategoryRepository(session)
 
 
 async def get_auth_service(
@@ -99,4 +92,3 @@ RecipeServiceDep = Annotated[RecipeService, Depends(get_recipe_service)]
 ScraperServiceDep = Annotated[ScraperService, Depends(get_scraper_service)]
 ImageServiceDep = Annotated[ImageService, Depends(get_image_service)]
 TagRepoDep = Annotated[SqlAlchemyTagRepository, Depends(get_tag_repo)]
-CategoryRepoDep = Annotated[SqlAlchemyCategoryRepository, Depends(get_category_repo)]

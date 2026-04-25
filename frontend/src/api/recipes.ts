@@ -1,6 +1,5 @@
 import api from "./client";
 import type {
-  Category,
   PaginatedResponse,
   Recipe,
   RecipeCreateData,
@@ -12,7 +11,6 @@ interface ListRecipesParams {
   per_page?: number;
   search?: string;
   tag_ids?: string[];
-  category_id?: string;
   is_favorite?: boolean;
   min_rating?: number;
   max_cook_time?: number;
@@ -27,7 +25,6 @@ export async function listRecipes(
   if (params.page) searchParams.set("page", String(params.page));
   if (params.per_page) searchParams.set("per_page", String(params.per_page));
   if (params.search) searchParams.set("search", params.search);
-  if (params.category_id) searchParams.set("category_id", params.category_id);
   if (params.is_favorite !== undefined)
     searchParams.set("is_favorite", String(params.is_favorite));
   if (params.min_rating) searchParams.set("min_rating", String(params.min_rating));
@@ -87,18 +84,6 @@ export async function createTag(name: string): Promise<Tag> {
 
 export async function deleteTag(id: string): Promise<void> {
   await api.delete(`tags/${id}`);
-}
-
-export async function listCategories(): Promise<Category[]> {
-  return api.get("categories").json();
-}
-
-export async function createCategory(name: string): Promise<Category> {
-  return api.post("categories", { json: { name } }).json();
-}
-
-export async function deleteCategory(id: string): Promise<void> {
-  await api.delete(`categories/${id}`);
 }
 
 export async function uploadImage(

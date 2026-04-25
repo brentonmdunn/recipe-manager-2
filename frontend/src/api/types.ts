@@ -17,12 +17,6 @@ export interface Tag {
   slug: string;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
 export interface Ingredient {
   id: string;
   name: string;
@@ -63,7 +57,6 @@ export interface Recipe {
   is_public: boolean;
   is_favorite: boolean;
   rating: number | null;
-  category: Category | null;
   tags: Tag[];
   ingredients: Ingredient[];
   steps: RecipeStep[];
@@ -84,7 +77,6 @@ export interface RecipeListItem {
   is_public: boolean;
   is_favorite: boolean;
   rating: number | null;
-  category: Category | null;
   tags: Tag[];
   primary_image: RecipeImage | null;
   created_at: string;
@@ -109,7 +101,6 @@ export interface RecipeCreateData {
   source_url?: string;
   nutrition_info?: string;
   is_public?: boolean;
-  category_id?: string;
   tag_ids?: string[];
   ingredients?: {
     name: string;

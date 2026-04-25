@@ -31,14 +31,7 @@ class Recipe(Base, UUIDMixin, TimestampMixin):
     user_id: Mapped[str] = mapped_column(
         String, ForeignKey("users.id"), nullable=False
     )
-    category_id: Mapped[str | None] = mapped_column(
-        String, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True
-    )
-
     user: Mapped["User"] = relationship(back_populates="recipes")  # noqa: F821
-    category: Mapped["Category | None"] = relationship(  # noqa: F821
-        back_populates="recipes"
-    )
     tags: Mapped[list["Tag"]] = relationship(  # noqa: F821
         secondary=recipe_tags, lazy="selectin"
     )

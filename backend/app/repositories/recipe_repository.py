@@ -24,7 +24,6 @@ class RecipeRepository(BaseRepository[Recipe]):
         per_page: int = 20,
         search: str | None = None,
         tag_ids: list[str] | None = None,
-        category_id: str | None = None,
         is_favorite: bool | None = None,
         min_rating: int | None = None,
         max_cook_time: int | None = None,
@@ -47,7 +46,6 @@ class SqlAlchemyRecipeRepository(RecipeRepository):
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.images),
-            selectinload(Recipe.category),
         ]
 
     async def get_by_id(self, id: str) -> Recipe | None:
@@ -82,7 +80,6 @@ class SqlAlchemyRecipeRepository(RecipeRepository):
         per_page: int = 20,
         search: str | None = None,
         tag_ids: list[str] | None = None,
-        category_id: str | None = None,
         is_favorite: bool | None = None,
         min_rating: int | None = None,
         max_cook_time: int | None = None,
@@ -112,10 +109,6 @@ class SqlAlchemyRecipeRepository(RecipeRepository):
             count_query = count_query.join(recipe_tags).where(
                 recipe_tags.c.tag_id.in_(tag_ids)
             )
-
-        if category_id:
-            query = query.where(Recipe.category_id == category_id)
-            count_query = count_query.where(Recipe.category_id == category_id)
 
         if is_favorite is not None:
             query = query.where(Recipe.is_favorite.is_(is_favorite))

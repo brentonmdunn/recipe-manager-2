@@ -2,7 +2,6 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.schemas.category import CategoryResponse
 from app.schemas.tag import TagResponse
 
 
@@ -62,7 +61,6 @@ class RecipeCreate(BaseModel):
     source_url: str | None = Field(default=None, max_length=2048)
     nutrition_info: str | None = None
     is_public: bool = True
-    category_id: str | None = None
     tag_ids: list[str] = Field(default_factory=list)
     ingredients: list[IngredientCreate] = Field(default_factory=list)
     steps: list[RecipeStepCreate] = Field(default_factory=list)
@@ -80,7 +78,6 @@ class RecipeUpdate(BaseModel):
     source_url: str | None = Field(default=None, max_length=2048)
     nutrition_info: str | None = None
     is_public: bool | None = None
-    category_id: str | None = None
     tag_ids: list[str] | None = None
     ingredients: list[IngredientCreate] | None = None
     steps: list[RecipeStepCreate] | None = None
@@ -101,7 +98,6 @@ class RecipeResponse(BaseModel):
     is_public: bool
     is_favorite: bool
     rating: int | None
-    category: CategoryResponse | None
     tags: list[TagResponse]
     ingredients: list[IngredientResponse]
     steps: list[RecipeStepResponse]
@@ -124,7 +120,6 @@ class RecipeListResponse(BaseModel):
     is_public: bool
     is_favorite: bool
     rating: int | None
-    category: CategoryResponse | None
     tags: list[TagResponse]
     primary_image: ImageResponse | None
     created_at: datetime

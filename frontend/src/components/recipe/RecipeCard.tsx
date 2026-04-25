@@ -60,11 +60,6 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
               {recipe.rating}
             </span>
           )}
-          {recipe.category && (
-            <span className="bg-gray-100 px-2 py-0.5 rounded text-xs">
-              {recipe.category.name}
-            </span>
-          )}
         </div>
 
         {recipe.tags.length > 0 && (
