@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RecipeDetailPage from "./pages/RecipeDetailPage";
 import RecipeEditPage from "./pages/RecipeEditPage";
+import SharedRecipePage from "./pages/SharedRecipePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="/recipes/:slug" element={<RecipeDetailPage />} />
               <Route path="/recipes/:slug/edit" element={<RecipeEditPage />} />
               <Route path="/import" element={<ImportRecipePage />} />
+              <Route path="/shared/:token" element={<SharedRecipePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>

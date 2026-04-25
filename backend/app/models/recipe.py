@@ -55,3 +55,6 @@ class Recipe(Base, UUIDMixin, TimestampMixin):
     images: Mapped[list["Image"]] = relationship(  # noqa: F821
         back_populates="recipe", cascade="all, delete-orphan"
     )
+    share_links: Mapped[list["ShareLink"]] = relationship(  # noqa: F821
+        back_populates="recipe", cascade="all, delete-orphan"
+    )
