@@ -95,9 +95,15 @@ class SqlAlchemyRecipeRepository(RecipeRepository):
             count_query = count_query.where(Recipe.is_public.is_(True))
 
         if search:
+            tag_match = (
+                select(recipe_tags.c.recipe_id)
+                .join(Tag, Tag.id == recipe_tags.c.tag_id)
+                .where(Tag.name.ilike(f"%{search}%"))
+            )
             search_filter = or_(
                 Recipe.title.ilike(f"%{search}%"),
                 Recipe.description.ilike(f"%{search}%"),
+                Recipe.id.in_(tag_match),
             )
             query = query.where(search_filter)
             count_query = count_query.where(search_filter)

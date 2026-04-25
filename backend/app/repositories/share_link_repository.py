@@ -16,7 +16,6 @@ class ShareLinkRepository:
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.images),
-            selectinload(Recipe.category),
         ]
 
     async def create(self, share_link: ShareLink) -> ShareLink:
