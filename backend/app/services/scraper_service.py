@@ -19,18 +19,44 @@ def _parse_ingredient(raw: str) -> dict:
         from ingredient_parser import parse_ingredient
 
         parsed = parse_ingredient(raw)
+
+        name = raw
+        if parsed.name and len(parsed.name) > 0:
+            name = parsed.name[0].text
+
+        quantity = None
+        unit = None
+        if parsed.amount and len(parsed.amount) > 0:
+            amt = parsed.amount[0]
+            if amt.quantity is not None:
+                quantity = float(amt.quantity)
+            if amt.unit is not None:
+                unit = str(amt.unit)
+
+        notes = None
+        if parsed.comment is not None:
+            notes = (
+                parsed.comment.text
+                if hasattr(parsed.comment, "text")
+                else str(parsed.comment)
+            )
+
+        preparation = None
+        if parsed.preparation is not None:
+            preparation = (
+                parsed.preparation.text
+                if hasattr(parsed.preparation, "text")
+                else str(parsed.preparation)
+            )
+
+        if preparation:
+            notes = f"{preparation}, {notes}" if notes else preparation
+
         return {
-            "name": parsed.name.text if parsed.name else raw,
-            "quantity": (
-                float(parsed.amount[0].quantity)
-                if parsed.amount and parsed.amount[0].quantity
-                else None
-            ),
-            "unit": (
-                parsed.amount[0].unit if parsed.amount and parsed.amount[0].unit
-                else None
-            ),
-            "notes": parsed.comment.text if parsed.comment else None,
+            "name": name,
+            "quantity": quantity,
+            "unit": unit,
+            "notes": notes,
         }
     except Exception:
         logger.debug("ingredient_parser failed for '%s', using raw string", raw)
