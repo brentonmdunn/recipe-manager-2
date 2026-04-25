@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   createRecipe,
   createTag,
-  deleteTag,
   getRecipe,
   listTags,
   updateRecipe,
@@ -30,7 +29,8 @@ export default function RecipeEditPage() {
   const { slug } = useParams<{ slug: string }>();
   const isEditing = !!slug;
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.is_admin ?? false;
   const queryClient = useQueryClient();
 
   const [title, setTitle] = useState("");
@@ -325,12 +325,13 @@ export default function RecipeEditPage() {
           <h2 className="font-semibold text-gray-900">Tags</h2>
 
           <div className="flex flex-wrap gap-2">
-            {tags?.map((tag) => (
-              <div key={tag.id} className="inline-flex items-center gap-1">
+            {tags && tags.length > 0 ? (
+              tags.map((tag) => (
                 <button
+                  key={tag.id}
                   type="button"
                   onClick={() => toggleTag(tag.id)}
-                  className={`px-3 py-1 rounded-l-full text-sm ${
+                  className={`px-3 py-1 rounded-full text-sm ${
                     selectedTagIds.includes(tag.id)
                       ? "bg-[var(--color-primary)] text-white"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -338,60 +339,51 @@ export default function RecipeEditPage() {
                 >
                   {tag.name}
                 </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await deleteTag(tag.id);
-                    setSelectedTagIds((prev) =>
-                      prev.filter((t) => t !== tag.id)
-                    );
-                    queryClient.invalidateQueries({ queryKey: ["tags"] });
-                  }}
-                  className={`px-1.5 py-1 rounded-r-full text-sm ${
-                    selectedTagIds.includes(tag.id)
-                      ? "bg-[var(--color-primary)] text-white/70 hover:text-white"
-                      : "bg-gray-100 text-gray-400 hover:text-gray-600"
-                  }`}
-                  title={`Delete "${tag.name}" tag`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">
+                {isAdmin
+                  ? "No tags yet — create one below."
+                  : "No tags yet. Ask an admin to add tags from the home page."}
+              </p>
+            )}
           </div>
 
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
-              onKeyDown={async (e) => {
-                if (e.key === "Enter" && newTagName.trim()) {
-                  e.preventDefault();
-                  const tag = await createTag(newTagName.trim());
-                  setSelectedTagIds((prev) => [...prev, tag.id]);
-                  setNewTagName("");
-                  queryClient.invalidateQueries({ queryKey: ["tags"] });
-                }
-              }}
-              placeholder="New tag name..."
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
-            <button
-              type="button"
-              onClick={async () => {
-                if (newTagName.trim()) {
-                  const tag = await createTag(newTagName.trim());
-                  setSelectedTagIds((prev) => [...prev, tag.id]);
-                  setNewTagName("");
-                  queryClient.invalidateQueries({ queryKey: ["tags"] });
-                }
-              }}
-              className="inline-flex items-center gap-1 px-3 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary-hover)]"
-            >
-              <Plus className="w-4 h-4" /> Add Tag
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter" && newTagName.trim()) {
+                    e.preventDefault();
+                    const tag = await createTag(newTagName.trim());
+                    setSelectedTagIds((prev) => [...prev, tag.id]);
+                    setNewTagName("");
+                    queryClient.invalidateQueries({ queryKey: ["tags"] });
+                  }
+                }}
+                placeholder="New tag name..."
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              />
+              <button
+                type="button"
+                disabled={!newTagName.trim()}
+                onClick={async () => {
+                  if (newTagName.trim()) {
+                    const tag = await createTag(newTagName.trim());
+                    setSelectedTagIds((prev) => [...prev, tag.id]);
+                    setNewTagName("");
+                    queryClient.invalidateQueries({ queryKey: ["tags"] });
+                  }
+                }}
+                className="inline-flex items-center gap-1 px-3 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4" /> Add Tag
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
