@@ -22,7 +22,7 @@ A lightweight, self-hosted recipe manager built with FastAPI and React.
 | Backend | Python 3.12, FastAPI, SQLAlchemy 2.0 (async), SQLite |
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS, TanStack Query |
 | Auth | JWT (access + refresh tokens), bcrypt |
-| Deployment | Docker, Caddy (reverse proxy + auto-HTTPS) |
+| Deployment | Docker, nginx (reverse proxy) |
 
 ## Quick Start
 
@@ -36,14 +36,15 @@ cd recipe-manager-2
 # Set your secret key
 export SECRET_KEY=$(openssl rand -hex 32)
 
-# Optional: set your domain for auto-HTTPS
-export DOMAIN=recipes.yourdomain.com
-
-# Start
+# Start (exposes port 3000 by default)
 docker compose up -d
 ```
 
-Visit `http://localhost` (or your domain) and create your admin account.
+Visit `http://localhost:3000` and create your admin account.
+
+Point your Cloudflare Tunnel to `http://localhost:3000`.
+
+To use a different port: `PORT=8080 docker compose up -d`
 
 ### Local Development
 
@@ -90,8 +91,7 @@ App at http://localhost:5173 (proxies API to backend)
 │       ├── contexts/        # Auth context
 │       └── pages/           # Route pages
 ├── docker-compose.yml       # Production deployment
-├── docker-compose.dev.yml   # Development (backend only)
-└── Caddyfile                # Reverse proxy config
+└── docker-compose.dev.yml   # Development (backend only)
 ```
 
 **Pattern:** Routes → Services → Repositories → Database. Each layer depends on abstractions, injected via FastAPI's `Depends()`.
@@ -107,7 +107,7 @@ Interactive API docs available at `/docs` (Swagger UI) when running the backend.
 | `DATABASE_URL` | `sqlite+aiosqlite:///./data/recipes.db` | Database connection string |
 | `SECRET_KEY` | `change-me-in-production` | JWT signing key |
 | `UPLOAD_DIR` | `./data/uploads` | Image upload directory |
-| `DOMAIN` | `localhost` | Domain for Caddy auto-HTTPS |
+| `PORT` | `3000` | Host port to expose the app on |
 
 ## License
 
