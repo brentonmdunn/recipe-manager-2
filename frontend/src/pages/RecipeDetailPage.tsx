@@ -270,14 +270,58 @@ export default function RecipeDetailPage() {
             </div>
           </div>
 
-          {recipe.nutrition_info && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h2 className="text-xl font-semibold mb-3">Nutrition</h2>
-              <pre className="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg overflow-x-auto">
-                {recipe.nutrition_info}
-              </pre>
-            </div>
-          )}
+          {recipe.nutrition_info && (() => {
+            let parsed: Record<string, string> | null = null;
+            try {
+              parsed = JSON.parse(recipe.nutrition_info);
+            } catch {
+              // not valid JSON
+            }
+            if (!parsed || typeof parsed !== "object") {
+              return (
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <h2 className="text-xl font-semibold mb-3">Nutrition</h2>
+                  <p className="text-sm text-gray-600">{recipe.nutrition_info}</p>
+                </div>
+              );
+            }
+            const labelMap: Record<string, string> = {
+              calories: "Calories",
+              fatContent: "Fat",
+              saturatedFatContent: "Saturated Fat",
+              transFatContent: "Trans Fat",
+              unsaturatedFatContent: "Unsaturated Fat",
+              cholesterolContent: "Cholesterol",
+              sodiumContent: "Sodium",
+              carbohydrateContent: "Carbohydrates",
+              fiberContent: "Fiber",
+              sugarContent: "Sugar",
+              proteinContent: "Protein",
+              servingSize: "Serving Size",
+            };
+            const entries = Object.entries(parsed).filter(([, v]) => v);
+            if (entries.length === 0) return null;
+            return (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h2 className="text-xl font-semibold mb-3">Nutrition</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {entries.map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="bg-gray-50 rounded-lg p-3 text-center"
+                    >
+                      <p className="text-sm text-gray-500">
+                        {labelMap[key] ?? key.replace(/Content$/i, "").replace(/([A-Z])/g, " $1").trim()}
+                      </p>
+                      <p className="text-base font-medium text-gray-800">
+                        {value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>
