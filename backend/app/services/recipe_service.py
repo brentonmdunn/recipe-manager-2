@@ -178,13 +178,11 @@ class RecipeService:
             await self._recipe_repo.add_tags(recipe, tags)
 
         if ingredients_data is not None:
-            ingredients = [
-                Ingredient(**ing.model_dump()) for ing in ingredients_data
-            ]
+            ingredients = [Ingredient(**ing) for ing in ingredients_data]
             await self._recipe_repo.set_ingredients(recipe, ingredients)
 
         if steps_data is not None:
-            steps = [RecipeStep(**step.model_dump()) for step in steps_data]
+            steps = [RecipeStep(**step) for step in steps_data]
             await self._recipe_repo.set_steps(recipe, steps)
 
         recipe = await self._recipe_repo.update(recipe)

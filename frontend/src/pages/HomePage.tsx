@@ -202,7 +202,7 @@ export default function HomePage() {
                 type="button"
                 onClick={handleCreateTag}
                 disabled={!newTagName.trim()}
-                className="inline-flex items-center gap-1 px-3 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1 px-3 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" /> Add
               </button>

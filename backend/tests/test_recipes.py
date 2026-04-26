@@ -102,6 +102,41 @@ async def test_update_recipe(client: AsyncClient, auth_headers: dict):
 
 
 @pytest.mark.asyncio
+async def test_update_recipe_with_ingredients_and_steps(
+    client: AsyncClient, auth_headers: dict
+):
+    create_resp = await client.post(
+        "/api/v1/recipes",
+        json={"title": "Recipe With Items"},
+        headers=auth_headers,
+    )
+    recipe_id = create_resp.json()["id"]
+
+    response = await client.put(
+        f"/api/v1/recipes/{recipe_id}",
+        json={
+            "title": "Recipe With Items",
+            "ingredients": [
+                {"name": "Flour", "quantity": 2.0, "unit": "cups"},
+                {"name": "Sugar", "quantity": 1.0, "unit": "cup"},
+            ],
+            "steps": [
+                {"step_number": 1, "instruction": "Mix dry ingredients."},
+                {"step_number": 2, "instruction": "Bake at 350F."},
+            ],
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert [i["name"] for i in body["ingredients"]] == ["Flour", "Sugar"]
+    assert [s["instruction"] for s in body["steps"]] == [
+        "Mix dry ingredients.",
+        "Bake at 350F.",
+    ]
+
+
+@pytest.mark.asyncio
 async def test_delete_recipe(client: AsyncClient, auth_headers: dict):
     create_resp = await client.post(
         "/api/v1/recipes",
