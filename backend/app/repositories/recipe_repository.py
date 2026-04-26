@@ -176,21 +176,15 @@ class SqlAlchemyRecipeRepository(RecipeRepository):
     async def set_ingredients(
         self, recipe: Recipe, ingredients: list[Ingredient]
     ) -> None:
-        for ing in recipe.ingredients:
-            await self._session.delete(ing)
-        await self._session.flush()
         for ing in ingredients:
             ing.recipe_id = recipe.id
-            self._session.add(ing)
+        recipe.ingredients = ingredients
         await self._session.flush()
 
     async def set_steps(self, recipe: Recipe, steps: list[RecipeStep]) -> None:
-        for step in recipe.steps:
-            await self._session.delete(step)
-        await self._session.flush()
         for step in steps:
             step.recipe_id = recipe.id
-            self._session.add(step)
+        recipe.steps = steps
         await self._session.flush()
 
     async def add_image(self, image: Image) -> Image:
