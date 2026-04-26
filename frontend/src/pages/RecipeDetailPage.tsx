@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   deleteRecipe,
@@ -34,6 +35,7 @@ export default function RecipeDetailPage() {
   });
 
   const [currentServings, setCurrentServings] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const favMutation = useMutation({
     mutationFn: () => toggleFavorite(recipe!.id),
@@ -145,11 +147,7 @@ export default function RecipeDetailPage() {
                   <Edit className="w-5 h-5 text-gray-400" />
                 </Link>
                 <button
-                  onClick={() => {
-                    if (confirm("Delete this recipe?")) {
-                      deleteMutation.mutate();
-                    }
-                  }}
+                  onClick={() => setShowDeleteConfirm(true)}
                   className="p-2 rounded-lg hover:bg-red-50 transition-colors"
                   title="Delete recipe"
                 >
@@ -287,6 +285,20 @@ export default function RecipeDetailPage() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete recipe"
+        message="Are you sure you want to delete this recipe? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={() => {
+          setShowDeleteConfirm(false);
+          deleteMutation.mutate();
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }
