@@ -33,11 +33,9 @@ A lightweight, self-hosted recipe manager built with FastAPI and React.
 git clone https://github.com/brentonmdunn/recipe-manager-2.git
 cd recipe-manager-2
 
-# Set your secret key
-export SECRET_KEY=$(openssl rand -hex 32)
-
-# Start (exposes port 3000 by default)
-docker compose up -d
+# Bootstrap: generates .env with a random SECRET_KEY, ensures the
+# stack_lab-internal network exists, builds images, and starts the stack.
+./scripts/deploy.sh
 ```
 
 Visit `http://localhost:3000` and create your admin account.
@@ -45,6 +43,16 @@ Visit `http://localhost:3000` and create your admin account.
 Point your Cloudflare Tunnel to `http://localhost:3000`.
 
 To use a different port: `PORT=8080 docker compose up -d`
+
+#### Updating a running deployment
+
+```bash
+# Pulls origin/main, rebuilds images, restarts the stack, prunes old images.
+./scripts/update.sh
+
+# Or skip the git pull (deploy local changes as-is):
+./scripts/update.sh --no-pull
+```
 
 ### Local Development
 
