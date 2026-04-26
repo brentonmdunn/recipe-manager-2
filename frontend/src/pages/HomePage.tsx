@@ -103,51 +103,39 @@ export default function HomePage() {
             <option value="rating-desc">Highest Rated</option>
             <option value="cook_time_minutes-asc">Quickest</option>
           </select>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center gap-1 px-3 py-2 border rounded-lg text-sm transition-colors ${
+          <div
+            className={`inline-flex items-center border rounded-lg text-sm transition-colors ${
               showFilters || hasFilters
                 ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-orange-50"
                 : "border-gray-300 text-gray-600 hover:bg-gray-50"
             }`}
           >
-            <Filter className="w-4 h-4" />
-            Filters
+            <button
+              type="button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="inline-flex items-center gap-1 px-3 py-2"
+            >
+              <Filter className="w-4 h-4" />
+              Filters
+            </button>
             {hasFilters && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  clearFilters();
-                }}
-                className="ml-1"
+                type="button"
+                onClick={clearFilters}
+                aria-label="Clear filters"
+                className="pr-2 pl-1 py-2"
               >
                 <X className="w-3 h-3" />
               </button>
             )}
-          </button>
+          </div>
         </div>
       </div>
 
       {((tags && tags.length > 0) || isAdmin) && (
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Tags</span>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => setEditTags((prev) => !prev)}
-                className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${
-                  editTags
-                    ? "bg-[var(--color-primary)] text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Pencil className="w-3 h-3" />
-                {editTags ? "Done" : "Edit tags"}
-              </button>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 mr-1">Tags:</span>
             {tags?.map((tag) =>
               editTags && isAdmin ? (
                 <div
@@ -179,6 +167,20 @@ export default function HomePage() {
                   {tag.name}
                 </button>
               )
+            )}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setEditTags((prev) => !prev)}
+                className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${
+                  editTags
+                    ? "bg-[var(--color-primary)] text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <Pencil className="w-3 h-3" />
+                {editTags ? "Done" : "Edit tags"}
+              </button>
             )}
           </div>
           {editTags && isAdmin && (

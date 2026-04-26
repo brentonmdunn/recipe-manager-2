@@ -1,17 +1,30 @@
-import { BookOpen, LogIn, LogOut, Plus, Search } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { BookOpen, LogIn, LogOut, Plus, Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function Header() {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const urlSearch = location.pathname === "/" ? searchParams.get("search") ?? "" : "";
+  const [search, setSearch] = useState(urlSearch);
+
+  useEffect(() => {
+    setSearch(urlSearch);
+  }, [urlSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (search.trim()) {
-      navigate(`/?search=${encodeURIComponent(search.trim())}`);
+    const trimmed = search.trim();
+    navigate(trimmed ? `/?search=${encodeURIComponent(trimmed)}` : "/");
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    if (urlSearch) {
+      navigate("/");
     }
   };
 
@@ -29,11 +42,21 @@ export default function Header() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search recipes..."
+                placeholder="Search recipes by title, description, or tag..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                className="w-full pl-10 pr-9 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </form>
 
