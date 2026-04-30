@@ -13,6 +13,7 @@ from app.models import Base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
