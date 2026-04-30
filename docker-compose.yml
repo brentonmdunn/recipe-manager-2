@@ -2,7 +2,7 @@ services:
   backend:
     build: ./backend
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./data/recipes.db
+      - DATABASE_URL=sqlite+aiosqlite:////data/recipes.db
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - UPLOAD_DIR=/data/uploads
     volumes:
